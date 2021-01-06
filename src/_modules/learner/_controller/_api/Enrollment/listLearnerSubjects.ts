@@ -45,10 +45,10 @@ const listLearnerSubjects = {
     } else {
       const [subjects, totalSubjects] = await getSubjects(start, size);
       const subjectIds = subjects.map((subject) => subject.id);
-      const enrollements = await getEnrollmentsForLearnerForSubjects(
-        learnerId,
-        subjectIds
-      );
+      const enrollements =
+        totalSubjects > 0
+          ? await getEnrollmentsForLearnerForSubjects(learnerId, subjectIds)
+          : [];
 
       total = totalSubjects;
 
