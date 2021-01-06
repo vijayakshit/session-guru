@@ -5,12 +5,15 @@ npm-debug.log
 # Local development
 *.env
 *.dev
+.env
 .DS_Store
 
 # Docker
 Dockerfile
 docker-compose.yml
 
+#Local TS Build Files
 dist
-.env
+
+#Dump files
 dump.rdb
