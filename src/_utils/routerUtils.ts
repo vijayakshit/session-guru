@@ -1,6 +1,5 @@
 import express, { Router } from 'express';
-// import { PathParams } from 'express';
-// import { authenticationMiddlewares } from './authenticationUtils';
+
 import {
   APIRouterConfig,
   UIRouterConfig,
@@ -9,10 +8,9 @@ import {
   Page,
   UIPageConfig
 } from '../_types/core';
-import session from 'express-session';
-import { SessionUser } from '../_types/core/index';
 import { Role } from '../_entities/User';
 
+//TODO: Move all redirection logic to a middleware of its own
 const authenticationMiddlewares: never[] = [];
 
 const genericTemplateVariableResolver = (
@@ -143,6 +141,7 @@ const getAPIHandler = (routeConfig: APIRouterConfig) => {
         parser(req.body, req.params, req.query, req.session)
       );
 
+      //TODO: Move Authentication logic to Middleware
       if (isAuthenticationCall) {
         if (result.errorCode) {
           console.log(`Auth Unsuccessful ${JSON.stringify(result)}`);

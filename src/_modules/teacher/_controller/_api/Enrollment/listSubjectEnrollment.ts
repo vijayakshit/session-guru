@@ -9,7 +9,6 @@ const listSubjectEnrollment = {
   controller: async (
     getSubjectEnrollmentRequest: GetSubjectEnrollmentRequest
   ): Promise<GetSubjectEnrollmentResponse> => {
-    //TODO implement model calls here.
     const { teacherId, subjectId, start, size } = getSubjectEnrollmentRequest;
 
     const subject = await getSubjectById(subjectId);

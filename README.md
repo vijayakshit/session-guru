@@ -27,8 +27,10 @@ https://sessionguru.herokuapp.com/ui/about
 - [ ] Add Tests 4 hr
 
 ### Pending optimizations
-- [ ] Clean Routing utils
-- [ ] Move session validation to middleware
-- [ ] Better Config Mangement(move config constants to config)
+- [X] Better Config Mangement(move config constants to config)
+- [ ] Cleanup Routing utils
+- [ ] Move session validation authentication and redirection logic to middlewares
+- [ ] Create Indexs on Database
+
 
 ### Basic Project Created from Heroku Node JS Boilerplate.

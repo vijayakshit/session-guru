@@ -1,4 +1,5 @@
-//TODO:  PROVIDE UNIQUE PATHS TO UI VIEW NAMES ; ALSO Figure a good way to avoid route and view name
+//TODO:  PROVIDE UNIQUE PATHS TO UI VIEW NAMES ;
+//TODO: ALSO Figure a good way to avoid route and view name collisions
 import path from 'path';
 
 import { createRouter } from '../../_utils/routerUtils';

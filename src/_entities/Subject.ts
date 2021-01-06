@@ -26,4 +26,3 @@ export class Subject extends BaseEntity {
   @OneToMany((type) => Enrollment, (enrollment) => enrollment.subject)
   enrollments: Enrollment[];
 }
-// TODO: Renaming total?

@@ -8,7 +8,6 @@ const listSubjectEnrollment = {
   controller: async (
     getSubjectEnrollmentRequest: UpdateSubjectAttendanceRequest
   ): Promise<UpdateSubjectAttendanceResponse> => {
-    //TODO implement model calls here.
     const { attended, subjectId, learnerIds } = getSubjectEnrollmentRequest;
 
     const updated = await updateAttendanceForEnrollments(

@@ -1,14 +1,12 @@
 import { ObjectLiteral } from '../../../../_types/core';
-import { Role, User } from '../../../../_entities/User';
+import { Role } from '../../../../_entities/User';
 import { SignInErrorCode, SignUpErrorCode } from '../authErrorCodes/ErrorCodes';
-import { Request } from 'express';
 import { SessionUser } from '../../../../_types/core/index';
 
 export interface RegisterUserRequest extends ObjectLiteral {
   readonly email: string;
   readonly role: Role;
   readonly password: string;
-  // readonly setSessionCallback: (req: Request, res: )=>
 }
 
 export interface RegisterUserResponse extends ObjectLiteral {

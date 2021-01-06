@@ -1,4 +1,3 @@
-// import { getEnrollmentCountsForSubjects } from '../../../_model/Enrollments';
 import { getSubjectsForTeacher } from '../../../_model/Subjects';
 import {
   ListSubjectsRequest,
@@ -9,19 +8,12 @@ const listSubjects = {
   controller: async (
     listSubjectRequest: ListSubjectsRequest
   ): Promise<ListSubjectsResponse> => {
-    //TODO implement model calls here.
     const { teacherId, start, size } = listSubjectRequest;
     const [subjects, total] = await getSubjectsForTeacher(
       teacherId,
       start,
       size
     );
-
-    // const subjectIds = subjects.map((subject) => subject.id);
-
-    // const subjectWithenrollmentCountList = await getEnrollmentCountsForSubjects(
-    //   subjectIds
-    // );
 
     const countEnrichedSubjects = subjects.map((subject) => {
       return {

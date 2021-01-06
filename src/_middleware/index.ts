@@ -9,8 +9,8 @@ import { Express } from 'express';
 const middlewareAttatchers = [
   attatchSessionManagementMiddleware,
   attatchStaticAssetResolutionMiddleware,
-  attatchViewsResolutionMiddleware,
   attatchBodyParserMiddleware,
+  attatchViewsResolutionMiddleware,
   attatchModuleRoutingMiddleware
 ];
 

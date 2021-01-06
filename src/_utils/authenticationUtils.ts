@@ -1,5 +1,3 @@
-// const { requiresAuth } = require('express-openid-connect');
-import { Request, Response } from 'express';
 import crypto from 'crypto';
 
 const salt = '';

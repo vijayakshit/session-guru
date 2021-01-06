@@ -1,16 +1,17 @@
+import { DEFAULT_REDIRECTION_PATH } from '../../../../../_config/constants';
+
 import {
   LogoutUserRequest,
   LogoutUserResponse
 } from '../../../_types/requestResponse/User';
 
-//TODO: Implement
 const logoutUser = {
   controller: async (
     _logoutUserRequest: LogoutUserRequest
   ): Promise<LogoutUserResponse> => {
     return {
       destroySession: true,
-      redirectionPath: '/about/ui'
+      redirectionPath: DEFAULT_REDIRECTION_PATH
     };
   },
   parser: (

@@ -1,10 +1,10 @@
 import path from 'path';
 import { Connection, createConnection } from 'typeorm';
-import { DATABASE_URL } from '../_config/constants';
+import { DATABASE_URL, ROOT_PATH } from '../_config/constants';
 
 let connection: Connection;
 
-const entitiesPath = path.join(process.cwd(), 'dist/_entities/*.js');
+const entitiesPath = path.join(ROOT_PATH, 'dist/_entities/*.js');
 
 export const synchronizeDBSchema = async () => {
   await getConnection();

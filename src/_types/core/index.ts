@@ -40,7 +40,7 @@ export interface ObjectLiteral {
   [key: string]: any;
 }
 
-////////////////////////////////////////
+////////////////////////////////////////  Session Types
 
 export interface SessionUser {
   id: string;
@@ -48,7 +48,7 @@ export interface SessionUser {
   role: Role;
 }
 
-////////////
+//////////////////////////////////////////// Types for UI rendering
 
 export interface NavigationConfig {
   readonly currentPage: Page;
@@ -65,7 +65,6 @@ export enum Page {
   SIGN_UP = 'SIGN_UP'
 }
 
-//////////
 export interface UIPageConfig {
   readonly navigationConfig: NavigationConfig;
   readonly pageConfig: ObjectLiteral;

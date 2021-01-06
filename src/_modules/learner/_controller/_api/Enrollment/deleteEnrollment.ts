@@ -8,7 +8,6 @@ const deleteEnrollment = {
   controller: async (
     deleteEnrollmentRequest: DeleteEnrollmentRequest
   ): Promise<DeleteEnrollmentResponse> => {
-    //TODO implement model calls here.
     const { subjectId, learnerId } = deleteEnrollmentRequest;
 
     const deleted = await deleteSubjectsEnrollmentForLearner(

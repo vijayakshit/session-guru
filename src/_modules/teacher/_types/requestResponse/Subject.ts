@@ -1,8 +1,6 @@
 import { ObjectLiteral } from 'typeorm/common/ObjectLiteral';
 import { Subject } from '../../../../_entities/Subject';
 import { TeacherSubject } from '../combinedEntities';
-
-//// SUBJECT Request Responses
 export interface CreateSubjectsRequest extends ObjectLiteral {
   readonly teacherId: string;
   readonly subjects: ReadonlyArray<Subject>;
