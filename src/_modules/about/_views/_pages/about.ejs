@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../_partials/header.ejs %>
+</head>
+
+<body>
+
+  <% include ../_partials/nav.ejs %>
+
+<div class="jumbotron text-center">
+  <div class="container">
+    <h1>Session Guru</h1>
+    <p>The application has two personas - Learner and Teacher (this can be selected on sign up.)
+      
+    </p>
+
+    <p>Teacher Can:
+      <ol>
+        <li> Create/Delete Subjects from  <a href="/teacher/ui/subjectListing">teacher subject listing page.</a>  </li>
+        <li> List Subjects in a paginated manner from the <a href="/teacher/ui/subjectListing"> teacher subject listing page</a>. </li>
+        <li> Navigate to subject detail page from the listing page by clicking the subjectname.</li>
+        <li> Edit Subject name and Mark/Unmark attendance from on the  details page. </li>
+      <ol>
+    </p>
+
+    <p>Learner Can:
+      <ol>
+        <li> View all subjects or Enrolled Subjects from <a href="/learner/ui/subjectListing"> learner subject listing page.</a> . </li>
+        <li> Enroll Unenroll in subjects from <a href="/learner/ui/subjectListing">learner subject listing page.</a>  </li>
+      <ol>
+    </p>
+
+    <p>Assumptions Made::
+      <ol>
+        <li> A user can either be a learner or a teacher and not both. </li>
+        <li> If a learner unenrolls from a subject their attendance is also unset. </li>
+        <li> Deleting a subject with Enrolled Learners is allowed. It would unenroll all learners </li>
+      <ol>
+    </p>
+
+    </div>
+</div>
+
+
+
+</body>
+</html>

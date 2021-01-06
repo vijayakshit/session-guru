@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <% include ../_partials/header.ejs %>
+</head>
+
+<body>
+  <script>
+    //Subject List Management
+    var getSubjectTemplate = ({subjectId, subjectName, totalEnrolled}) => {
+      var templateHtml = `<li class='list-group-item'>` +
+        `<div id='subjectListing_${subjectId}' style='display:flex;flex-direction:row;justify-content: space-between;align-items: center;color:black;'>` +
+        `<div class='subjectNavigation' id='subejctId_nav' style='color: #532F8C; cursor: pointer;'>` +
+        `<span class='glyphicon glyphicon-book'></span>` +
+        `<span style='font-weight: 500;'> <u>${subjectName}</u> </span>` +
+        `</div>` +
+        `<span style='font-weight: 200;'> ${totalEnrolled} Learners Enrolled</span>` +
+        `<div class='subjectDeletion'  style='font-weight:900; cursor:pointer;'>` +
+        `<span class='glyphicon glyphicon-trash'></span>` +
+        `</div>` +
+        `</div>` +
+        `</li>`;
+      return templateHtml;
+    }
+
+
+    var subjects = [];
+    var subjectListLoading = true;
+    var subjectPageStart = 0;
+    var subjectPageSize = 5;
+
+    var totalSubjects = 0;
+
+    var renderSubjectList = function () {
+
+      //List Rendering
+      $("#subjectList").html("");
+      subjects.forEach(subject => {
+        $("#subjectList").append(getSubjectTemplate(subject))
+      });
+
+      // Pagination rendering
+      $("#subjectListPaginationControls").html("");
+      var numberOfPages = totalSubjects === 0 ? 0 : Math.floor(totalSubjects / subjectPageSize) + ((totalSubjects % subjectPageSize) > 0 ? 1 : 0);
+      var currentPage = Math.floor(subjectPageStart / 5) + 1;
+      var prevNavHTML = `<li class="paginationPrevious page-item ${currentPage <= 1 ? 'disabled' : ''}">` +
+        `<a class="page-link ${currentPage <= 1 ? 'disabled' : ''}" tabindex="-1">Previous</a>` +
+        `</li>`;
+      var nextNavHTML = `<li class="paginationNext page-item ${currentPage === numberOfPages ? 'disabled' : ''}">` +
+        `<a class="page-link ${currentPage === numberOfPages ? 'disabled' : ''}" tabindex="-1">Next</a>` +
+        `</li>`;
+      $("#subjectListPaginationControls").append(prevNavHTML);
+      for (let i = 1; i <= numberOfPages; i++) {
+        var isPageActiveClass = currentPage === i ? 'active' : "";
+        var paginationItemHtml = `<li id='pagination_${i}' class='paginationByNumber page-item ${isPageActiveClass}'>` +
+          `<a class="page-link">` +
+          `${i}` +
+          `</a>` +
+          `</li>`;
+        $("#subjectListPaginationControls").append(paginationItemHtml);
+      }
+      $("#subjectListPaginationControls").append(nextNavHTML);
+
+      attatchHandlers();
+    }
+
+    var loadSubjectList = function (start, size, searchQuery) {
+      $.ajax({
+        url: "/teacher/api/listSubjects",
+        type: "POST",
+        data: JSON.stringify({
+          start: subjectPageStart,
+          size: subjectPageSize
+        }),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (result) {
+          subjects = result.teacherSubjects;
+          totalSubjects = result.total;
+          renderSubjectList();
+        },
+        error: function (error) {
+          if (result.redirectionPath) window.location.href = result.redirectionPath;
+        }
+      });
+    }
+
+    var redirectToSubjectDetails = (subjectId) => {
+      window.location = `/teacher/ui/subjectDetails/${subjectId}`
+    }
+
+    var deleteSubjectHandler = (subjectId) => {
+      $.ajax({
+        url: "/teacher/api/deleteSubject",
+        type: "POST",
+        data: JSON.stringify({
+          subjectIds: [subjectId],
+        }),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (result) {
+          loadSubjectList();
+        },
+        error: function (result) {
+          if (result.redirectionPath) window.location.href = result.redirectionPath;
+        }
+      });
+
+    }
+
+    //New Subject Name Input Listener
+    $(function () {
+      $("#newSubjectNameInput").on("change paste keyup", function () {
+        var newSubjectName = $("#newSubjectNameInput").val();
+        if (newSubjectName && newSubjectName.length > 0) {
+          $("#newSubjectCreateButton").removeClass("disabled");
+        } else {
+          $("#newSubjectCreateButton").addClass("disabled");
+        }
+      });
+    });
+
+    //New Subject Name Button Listener
+    $(function () {
+      $("#newSubjectCreateButton").bind("click", function () {
+        var newSubjectName = $("#newSubjectNameInput").val();
+        if (newSubjectName && newSubjectName.length > 0) {
+          $("#newSubjectCreateButton").addClass("disabled");
+          $.ajax({
+            url: "/teacher/api/createSubjects",
+            type: "POST",
+            data: JSON.stringify({
+              subjects: [{
+                subjectName: newSubjectName
+              }],
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+              $("#newSubjectNameInput").val("");
+              loadSubjectList();
+            },
+            error: function (result) {
+              if (result.redirectionPath) window.location.href = result.redirectionPath;
+            }
+          });
+
+        }
+      });
+    });
+
+
+
+    var attatchHandlers = () => {
+      $(function () {
+        $(".subjectNavigation").bind("click", function (e) {
+          var subjectId = this.parentElement.id.split("subjectListing_")[1];
+          redirectToSubjectDetails(subjectId)
+        });
+      });
+      // Subject Delete Handler
+      $(function () {
+        $(".subjectDeletion").bind("click", function (e) {
+          var subjectId = this.parentElement.id.split("subjectListing_")[1];
+          deleteSubjectHandler(subjectId);
+        });
+      });
+
+      // Pagination Next Handler
+      $(function () {
+        $(".paginationNext").bind("click", function () {
+          if(subjectPageStart + subjectPageSize > totalSubjects) return;
+          subjectPageStart = subjectPageStart + subjectPageSize;
+          loadSubjectList();
+        });
+      });
+      $(function () {
+        $(".paginationPrevious").bind("click", function (e) {
+          if(subjectPageStart - subjectPageSize < 0) return;
+          subjectPageStart = subjectPageStart - subjectPageSize;
+          loadSubjectList();
+        });
+      });
+      $(function () {
+        $(".paginationByNumber").bind("click", function (e) {
+          var pageNo = parseInt(this.id.split("pagination_")[1]);
+          var currentPage = Math.floor(subjectPageStart / 5) + 1;
+
+          if(pageNo == currentPage) return;
+          subjectPageStart = (pageNo - 1)  *  subjectPageSize;
+          loadSubjectList();
+
+        });
+      });
+
+    }
+    //Initialization
+    loadSubjectList();
+
+  </script>
+
+  <% include ../_partials/nav.ejs %>
+
+  <div class="jumbotron text-center">
+    <div class="container">
+      <input id="newSubjectNameInput" class="btn btn-lg" value="" placeholder="New Subject Name" />
+      <div id="newSubjectCreateButton" type="button" class="disabled btn btn-lg btn-primary"><span
+          class="glyphicon glyphicon-plus"></span> Add a new Subject</div>
+      <h3><span class="glyphicon glyphicon-book"></span> Your Subjects</h3>
+      <ul id="subjectList" class="list-group" style="margin-top:20px;">
+
+      </ul>
+      <nav aria-label="subjectListpagination">
+        <ul id="subjectListPaginationControls" class="pagination">
+
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+</body>
+
+</html>

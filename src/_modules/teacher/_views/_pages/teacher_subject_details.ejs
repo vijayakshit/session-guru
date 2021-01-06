@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <% include ../_partials/header.ejs %>
+</head>
+
+<body>
+  <script>
+    //Enrollment List Management
+    var getEnrollmentTemplate = ({ subjectId, learnerId, subjectName, learnerName, enrolled, attended }) => {
+      var templateHtml = `<li class='list-group-item'>` +
+        `<div id='enrollmentListing_${learnerId}' style='display:flex;flex-direction:row;justify-content: space-between;align-items: center;color:black;'>` +
+        `<div class='enrollmentNavigation' id='subejctId_nav' style='color: #532F8C; cursor: pointer;'>` +
+        `<span class='glyphicon glyphicon-user'></span>` +
+        `<span style='font-weight: 500;'> ${learnerName} </span>` +
+        `</div>` +
+
+        (!attended ?
+          ` <span style='font-weight: 400;'> Attendance Not Marked</span>` :
+          `<span style='font-weight: 400;'> Attendance Marked</span>`) +
+
+        (!attended ?
+          ` <button type="button" class="btn btn-primary markAttendance"  style='font-weight:900; cursor:pointer;'> Mark Attendance </button>` :
+          ` <button type="button" class="btn btn-primary umMarkAttendance"  style='font-weight:900; cursor:pointer;'> Unmark Attendance </button>`) +
+
+
+
+        `</div>` +
+        `</li>`;
+      return templateHtml;
+    }
+
+
+    var enrollments = [];
+    var enrollmentListLoading = true;
+    var enrollmentPageStart = 0;
+    var enrollmentPageSize = 5;
+
+    var totalEnrollments = 0;
+    var subjectId = window.location.href.split("Details/")[1];
+    var subjectName = "";
+
+    var renderEnrollmentList = function () {
+
+      //List Rendering
+      $("#enrollmentList").html("");
+      enrollments.forEach(enrollment => {
+        $("#enrollmentList").append(getEnrollmentTemplate(enrollment))
+      });
+
+      // Pagination rendering
+      $("#enrollmentListPaginationControls").html("");
+      var numberOfPages = totalEnrollments === 0 ? 0 : Math.floor(totalEnrollments / enrollmentPageSize) + ((totalEnrollments % enrollmentPageSize) > 0 ? 1 : 0);
+      var currentPage = Math.floor(enrollmentPageStart / 5) + 1;
+      var prevNavHTML = `<li class="paginationPrevious page-item ${currentPage <= 1 ? 'disabled' : ''}">` +
+        `<a class="page-link ${currentPage <= 1 ? 'disabled' : ''}" tabindex="-1">Previous</a>` +
+        `</li>`;
+      var nextNavHTML = `<li class="paginationNext page-item ${currentPage === numberOfPages ? 'disabled' : ''}">` +
+        `<a class="page-link ${currentPage === numberOfPages ? 'disabled' : ''}" tabindex="-1">Next</a>` +
+        `</li>`;
+      $("#enrollmentListPaginationControls").append(prevNavHTML);
+      for (let i = 1; i <= numberOfPages; i++) {
+        var isPageActiveClass = currentPage === i ? 'active' : "";
+        var paginationItemHtml = `<li id='pagination_${i}' class='paginationByNumber page-item ${isPageActiveClass}'>` +
+          `<a class="page-link">` +
+          `${i}` +
+          `</a>` +
+          `</li>`;
+        $("#enrollmentListPaginationControls").append(paginationItemHtml);
+      }
+      $("#enrollmentListPaginationControls").append(nextNavHTML);
+      
+      attatchHandlers();
+    }
+
+    var renderSubjectName = function(editMode) {
+      if(editMode){
+        $("#subjectNameEdit").show();
+        $("#subjectNameView").hide();
+      } else {
+        $("#subjectNameEdit").hide();
+        $("#subjectNameView").show();
+      }
+      $("#newEnrollmentNameInput").val(subjectName);
+      $("#subjectNameViewText").html(subjectName);
+    }
+    
+    var loadEnrollmentList = function (start, size, searchQuery) {
+      $.ajax({
+        url: "/teacher/api/listSubjectEnrollment",
+        type: "POST",
+        data: JSON.stringify({
+          start: enrollmentPageStart,
+          size: enrollmentPageSize,
+          subjectId: subjectId
+        }),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (result) {
+          enrollments = result.enrollments;
+          totalEnrollments = result.total;
+          subjectName = result.subject.subjectName;
+          renderEnrollmentList();
+          renderSubjectName();
+        },
+        error: function (error) {
+          if (result.redirectionPath) window.location.href = result.redirectionPath;
+        }
+      });
+    }
+
+    var markAttendance = function (markAttended, subjectId, learnerIds) {
+      $.ajax({
+        url: "/teacher/api/updateSubjectAttendance",
+        type: "POST",
+        data: JSON.stringify({
+          attended: markAttended,
+          subjectId,
+          learnerIds,
+        }),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (result) {
+          loadEnrollmentList();
+        },
+        error: function (error) {
+          if (result.redirectionPath) window.location.href = result.redirectionPath;
+        }
+      });
+    }
+
+    var updateName = function (newSubjectName, subjectId) {
+      $.ajax({
+        url: "/teacher/api/updateSubject",
+        type: "POST",
+        data: JSON.stringify({
+          updatedSubject: {
+            subjectName: newSubjectName
+          },
+          subjectId
+        }),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (result) {
+          subjectName = newSubjectName;
+          renderSubjectName();
+        },
+        error: function (error) {
+
+        }
+      });
+    }
+
+
+
+
+    var attatchHandlers = () => {
+
+      // Enrollment Delete Handler
+      $(function () {
+        $("#saveSubjectNameTrigger").bind("click", function (e) {
+          var newSubjectName = $("#newEnrollmentNameInput").val();
+          updateName(newSubjectName, subjectId);
+        });
+      });
+
+      $(function () {
+        $("#editSubjectNameTrigger").bind("click", function (e) {
+          renderSubjectName(true);
+        });
+      });
+
+      // Enrollment Delete Handler
+      $(function () {
+        $(".markAttendance").bind("click", function (e) {
+          var learnerId = this.parentElement.id.split("enrollmentListing_")[1];
+          markAttendance(true, subjectId, [learnerId]);
+        });
+      });
+
+      $(function () {
+        $(".umMarkAttendance").bind("click", function (e) {
+          var learnerId = this.parentElement.id.split("enrollmentListing_")[1];
+          markAttendance(false, subjectId, [learnerId]);
+        });
+      });
+
+      // Pagination Next Handler
+      $(function () {
+        $(".paginationNext").bind("click", function () {
+          if (enrollmentPageStart + enrollmentPageSize > totalEnrollments) return;
+          enrollmentPageStart = enrollmentPageStart + enrollmentPageSize;
+          loadEnrollmentList();
+        });
+      });
+      $(function () {
+        $(".paginationPrevious").bind("click", function (e) {
+          if (enrollmentPageStart - enrollmentPageSize < 0) return;
+          enrollmentPageStart = enrollmentPageStart - enrollmentPageSize;
+          loadEnrollmentList();
+        });
+      });
+      $(function () {
+        $(".paginationByNumber").bind("click", function (e) {
+          var pageNo = parseInt(this.id.split("pagination_")[1]);
+          var currentPage = Math.floor(enrollmentPageStart / 5) + 1;
+
+          if (pageNo == currentPage) return;
+          enrollmentPageStart = (pageNo - 1) * enrollmentPageSize;
+          loadEnrollmentList();
+
+        });
+      });
+
+    }
+    //Initialization
+    loadEnrollmentList();
+  </script>
+
+  <% include ../_partials/nav.ejs %>
+
+    <div class="jumbotron text-center">
+      <div class="container">
+        <div id="subjectNameEdit" style="display: none;"> 
+          <input id="newEnrollmentNameInput" class="btn btn-lg" value="" placeholder="New Subject Name" />
+          <div id="saveSubjectNameTrigger" type="button" class="btn btn-lg btn-primary"><span
+            class="	glyphicon glyphicon-floppy-disk"></span></div>
+        </div>
+        <div id="subjectNameView" style="display: none;"> 
+          <h3><span class="glyphicon glyphicon-book"></span> <span id="subjectNameViewText"> <span></h3>
+          <div id="editSubjectNameTrigger" type="button" class="btn btn-lg btn-primary"><span
+            class="glyphicon glyphicon-edit"></span></div>
+        </div>
+          
+    
+        <ul id="enrollmentList" class="list-group" style="margin-top:20px;">
+
+        </ul>
+        <nav aria-label="enrollmentListpagination">
+          <ul id="enrollmentListPaginationControls" class="pagination">
+
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+</body>
+
+</html>

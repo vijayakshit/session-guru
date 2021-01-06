@@ -1,0 +1,83 @@
+<nav class="navbar navbar-default navbar-static-top navbar-inverse">
+  <div class="container">
+    <ul class="nav navbar-nav">
+      <% if(navigationConfig.currentPage === "ABOUT" ){ %>
+        <li class="active">
+          <a href="/"><span class="glyphicon glyphicon-home"></span> About</a>
+        </li>
+        <% if(!navigationConfig.role){ %>
+          <li>
+            <a href="/auth/ui/signUp"><span class="glyphicon glyphicon-user"></span> Sign Up</a>
+          </li>
+          <li>
+            <a href="/auth/ui/signIn"><span class="glyphicon glyphicon-user"></span> Sign In</a>
+          </li>
+        <% }%>
+        <% if(!navigationConfig.role == "LEARNER"){ %>
+          <li>
+            <a href="/teacher/ui/subjectListing"><span class="glyphicon glyphicon-book"></span> Teacher</a>
+          </li>
+        <% }%>
+        <% if( navigationConfig.role == "LEARNER"){ %>
+          <li>
+            <a href="/learner/ui/subjectListing"><span class="glyphicon glyphicon-book"></span> Learner</a>
+          </li>
+        <% }%>
+      <% }%>
+      <% if(navigationConfig.currentPage === "SIGN_IN" ){ %>
+        <li>
+          <a href="/"><span class="glyphicon glyphicon-home"></span> About</a>
+        </li>
+        <li>
+          <a href="/auth/ui/signUp"><span class="glyphicon glyphicon-user"></span> Sign Up</a>
+        </li>
+        <li class="active">
+          <a href="/auth/ui/signIn"><span class="glyphicon glyphicon-user"></span> Sign In</a>
+        </li>
+      <% }%>
+      <% if(navigationConfig.currentPage === "SIGN_UP" ){ %>
+        <li>
+          <a href="/"><span class="glyphicon glyphicon-home"></span> About</a>
+        </li>
+        <li class="active">
+          <a href="/auth/ui/signUp"><span class="glyphicon glyphicon-user"></span> Sign Up</a>
+        </li>
+        <li>
+          <a href="/auth/ui/signIn"><span class="glyphicon glyphicon-user"></span> Sign In</a>
+        </li>
+      <% }%>
+      <% if(navigationConfig.currentPage === "TEACHER" ){ %>
+        <li>
+          <a href="/"><span class="glyphicon glyphicon-home"></span> About</a>
+        </li>
+        <li class="active">
+          <a href="/teacher/ui/subjectListing"><span class="glyphicon glyphicon-book"></span> Teacher</a>
+        </li>
+      <% }%>
+      <% if(navigationConfig.currentPage === "LEARNER" ){ %>
+        <li>
+          <a href="/"><span class="glyphicon glyphicon-home"></span> About</a>
+        </li>
+        <li class="active">
+          <a href="/learner/ui/subjectListing"><span class="glyphicon glyphicon-book"></span> Learner</a>
+        </li>
+      <% }%>
+    </ul>
+
+
+    <% if(navigationConfig.email){ %>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="navbar-right">
+          <a href="/auth/api/logoutUser"><span class="glyphicon glyphicon-log-out"></span> Logout</a>
+        </li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="navbar-right">
+          <a> <span class="glyphicon glyphicon-user"></span> Hi, 
+            <%= navigationConfig.email %>
+          </a>
+        </li>
+      </ul>
+    <% }%>
+  </div>
+</nav>

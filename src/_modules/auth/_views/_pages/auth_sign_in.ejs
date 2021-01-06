@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <% include ../_partials/header.ejs %>
+</head>
+
+<body>
+  <script>
+    var signIn = function () {
+      a = $("#usernameFld").val();
+      b = $("#passwordFld").val();
+
+      $.ajax({
+        url: "/auth/api/loginUser",
+        type: "POST",
+        data: JSON.stringify({
+          email: a,
+          password: b,
+        }),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (result) {
+          if(result.redirectionPath) window.location.href = result.redirectionPath;
+        },
+        error: function (result) {
+          if(result.redirectionPath) window.location.href = result.redirectionPath;
+          else alert(result);
+        }
+      });
+    }
+  </script>
+  <div style="max-height: 100vh;">
+    <% include ../_partials/nav.ejs %>
+    <div class="jumbotron">
+      <div class="container">
+        <div class="">
+          <div class="card" style="display: flex; flex-direction:column; justify-content:center; align-items:center">
+            <div class="card-header">
+              <h3>Sign In</h3>
+            </div>
+            <div class="card-body">
+              <form>
+                <div class="input-group form-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                  </div>
+                  <input id="usernameFld" type="text" class="form-control" placeholder="username">
+
+                </div>
+                <div class="input-group form-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-key"></i></span>
+                  </div>
+                  <input id="passwordFld" type="password" class="form-control" placeholder="password">
+                </div>
+            </div>
+            <div onclick="signIn()" class="form-group"
+              style="color:#532F8C; display:flex; justify-content:center; align-items:center; ">
+              <input value="Sign In" class="btn sign_btn">
+            </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div>
+
+</body>
+
+
+</html>

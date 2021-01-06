@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <% include ../_partials/header.ejs %>
+</head>
+
+<body>
+  <script>
+    //Subject List Management V4
+    var getSubjectTemplate = ({ subjectId, teacherId, subjectName, enrolled, attended, teacherName }) => {
+      var enrollmentText = enrolled ? "Unenroll" : "Enroll";
+      var attendanceText = enrolled && attended ? "Attendance Marked" : "Attendance Not Marked";
+      var templateHtml = `<li class='list-group-item'>` +
+        `<div id='subjectListing_${subjectId}' style='display:flex;flex-direction:row;justify-content: space-between;align-items: center;color:black;'>` +
+        `<div class='' id='' style='color: #532F8C; cursor: pointer;'>` +
+        `<span class='glyphicon glyphicon-book'></span>` +
+        `<span style='font-weight: 500;'> ${subjectName} </span>` +
+        `<span style='font-weight: 500;'> by ${teacherName} </span>` +
+        `</div>` +
+        (enrolled ?
+          ` <button type="button" class="btn btn-primary subjectUnenroll"  style='font-weight:900; cursor:pointer;'>` :
+            ` <button type="button" class="btn btn-primary subjectEnroll"  style='font-weight:900; cursor:pointer;'>` 
+              ) +
+       
+        `<span style='font-weight: 200;'> ${enrollmentText} </span>` +
+        `</button>` +
+        `<span style='font-weight: 100;'> ${attendanceText} </span>` +
+        `</div>` +
+        `</li>`;
+      return templateHtml;
+    }
+
+
+    var subjects = [];
+    var listType = "ENROLLED_SUBJECTS"; // "ENROLLED_SUBJECTS";
+    var subjectPageStart = 0;
+    var subjectPageSize = 5;
+    var enrollementsLoading = false
+
+    var totalSubjects = 0;
+
+    var callInProgress = false;
+
+    var showContent = function(){
+      $(".allContainer").show();
+      $(".allLoader").hide();
+    }
+
+    var hideContent = function(){
+      $(".allLoader").show();
+      $(".allContainer").hide();
+    }
+
+    var renderPageHeading = function () {
+      // Heading Rendering
+      if (listType == "ALL_SUBJECTS") {
+        $("#enrolledHeading").hide();
+        $("#allSubjectsToggle").hide();
+        $("#allSubjectsHeading").show();
+        $("#enrolledToggle").show();
+      } else {
+        $("#allSubjectsHeading").hide();
+        $("#enrolledToggle").hide();
+        $("#enrolledHeading").show();
+        $("#allSubjectsToggle").show();
+      }
+    }
+
+    var renderPagination = function () {
+      // Pagination rendering
+      $("#subjectListPaginationControls").html("");
+      var numberOfPages = totalSubjects === 0 ? 0 : Math.floor(totalSubjects / subjectPageSize) + ((totalSubjects % subjectPageSize) > 0 ? 1 : 0);
+      var currentPage = Math.floor(subjectPageStart / 5) + 1;
+      var prevNavHTML = `<li class="paginationPrevious page-item ${currentPage <= 1 ? 'disabled' : ''}">` +
+        `<a class="page-link ${currentPage <= 1 ? 'disabled' : ''}" tabindex="-1">Previous</a>` +
+        `</li>`;
+      var nextNavHTML = `<li class="paginationNext page-item ${currentPage === numberOfPages ? 'disabled' : ''}">` +
+        `<a class="page-link ${currentPage === numberOfPages ? 'disabled' : ''}" tabindex="-1">Next</a>` +
+        `</li>`;
+      $("#subjectListPaginationControls").append(prevNavHTML);
+      for (let i = 1; i <= numberOfPages; i++) {
+        var isPageActiveClass = currentPage === i ? 'active' : "";
+        var paginationItemHtml = `<li id='pagination_${i}' class='paginationByNumber page-item ${isPageActiveClass}'>` +
+          `<a class="page-link">` +
+          `${i}` +
+          `</a>` +
+          `</li>`;
+        $("#subjectListPaginationControls").append(paginationItemHtml);
+      }
+      $("#subjectListPaginationControls").append(nextNavHTML);
+
+    }
+
+    var renderSubjectList = function () {
+      //List Rendering
+      $("#subjectList").html("");
+      subjects.forEach(subject => {
+        $("#subjectList").append(getSubjectTemplate(subject))
+      });
+
+    }
+
+    var renderPage = function () {
+      renderPageHeading();
+      renderSubjectList();
+      renderPagination();
+      attatchHandlers();
+    }
+    
+    var createEnrollment = function(subjectId) {
+      $.ajax({
+        url: "/learner/api/createEnrollmentForLearner",
+        type: "POST",
+        data: JSON.stringify({
+          subjectIds: [subjectId]
+        }),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (result) {
+          loadSubjectList();
+        },
+        error: function (error) {
+          if (result.redirectionPath) window.location.href = result.redirectionPath;
+        }
+      });
+    }
+
+    var deleteEnrollment = function(subjectId) {
+      $.ajax({
+        url: "/learner/api/deleteEnrollmentForLearner",
+        type: "POST",
+        data: JSON.stringify({
+          subjectId: subjectId
+        }),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (result) {
+          loadSubjectList();
+        },
+        error: function (error) {
+          if (result.redirectionPath) window.location.href = result.redirectionPath;
+        }
+      });
+    }
+
+    var loadSubjectList = function (start, size, searchQuery) {
+      hideContent();
+      if(callInProgress) return;
+      callInProgress = true;
+      $.ajax({
+        url: "/learner/api/listLearnerSubjects",
+        type: "POST",
+        data: JSON.stringify({
+          start: subjectPageStart,
+          size: subjectPageSize,
+          onlyEnrolledSubjects: listType == "ENROLLED_SUBJECTS"
+        }),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (result) {
+          subjects = result.learnerSubjects;
+          totalSubjects = result.total;
+          renderPage();
+          showContent();
+          callInProgress = false;
+        },
+        error: function (error) {
+          if (result.redirectionPath) window.location.href = result.redirectionPath;
+          showContent();
+          callInProgress = false;
+        }
+      });
+    }
+
+    var toggleListType = function () {
+      if (listType == "ALL_SUBJECTS") {
+        listType = "ENROLLED_SUBJECTS";
+
+      } else {
+        listType = "ALL_SUBJECTS";
+      }
+    }
+
+    var attatchHandlers = () => {
+
+      //Handler - Enrollment
+      $(function () {
+        $(".subjectUnenroll").bind("click", function (e) {
+          var subjectId = this.parentElement.id.split("subjectListing_")[1];
+          deleteEnrollment(subjectId);
+        });
+      });
+
+      //Handler - Unenrollment
+      $(function () {
+        $(".subjectEnroll").bind("click", function (e) {
+          var subjectId = this.parentElement.id.split("subjectListing_")[1];
+          createEnrollment(subjectId);
+        });
+      });
+
+
+      // Pagination Next Handler
+      $(function () {
+        $(".paginationNext").bind("click", function () {
+          if (subjectPageStart + subjectPageSize >= totalSubjects) return;
+          subjectPageStart = subjectPageStart + subjectPageSize;
+          loadSubjectList();
+        });
+      });
+      // Pagination Prev Handler
+      $(function () {
+        $(".paginationPrevious").bind("click", function (e) {
+          if (subjectPageStart - subjectPageSize < 0) return;
+          subjectPageStart = subjectPageStart - subjectPageSize;
+          loadSubjectList();
+        });
+      });
+      // Pagination by Page number Handler
+      $(function () {
+        $(".paginationByNumber").bind("click", function (e) {
+          var pageNo = parseInt(this.id.split("pagination_")[1]);
+          var currentPage = Math.floor(subjectPageStart / 5) + 1;
+
+          if (pageNo == currentPage) return;
+          subjectPageStart = (pageNo - 1) * subjectPageSize;
+          loadSubjectList();
+
+        });
+      });
+      
+        // Pagination by Page number Handler
+        $(function () {
+          $(".paginationByNumber").bind("click", function (e) {
+            var pageNo = parseInt(this.id.split("pagination_")[1]);
+            var currentPage = Math.floor(subjectPageStart / 5) + 1;
+  
+            if (pageNo == currentPage) return;
+            subjectPageStart = (pageNo - 1) * subjectPageSize;
+            loadSubjectList();
+          });
+        });
+
+                  // Pagination by Page number Handler
+      $(function () {
+        $(".toggleListType").bind("click", function (e) {
+          toggleListType();
+          loadSubjectList();
+        });
+      });
+    }
+    //Initialization
+    renderPageHeading();
+    loadSubjectList();
+    showContent();
+
+  </script>
+
+  <% include ../_partials/nav.ejs %>
+
+    <div class="jumbotron text-center">
+      <div class="container allContainer" style="display: none;">
+        <h3 id="allSubjectsHeading" style="display: none;"><span class="glyphicon glyphicon-book"></span> All Subjects
+        </h3>
+        <h3 id="enrolledHeading" style="display: none;"><span class="glyphicon glyphicon-book"></span> Your Enrolled
+          Subjects</h3>
+
+          <div id="allSubjectsToggle" class="toggleListType text-dark" style="display: none;">
+            <u> View All
+              Subjects</u>
+          </div>
+          <div id="enrolledToggle" class="toggleListType text-dark" style="display: none;">
+           <u> View Your Enrolled
+              Subjects</u>
+          </div>
+        <ul id="subjectList" class="list-group" style="margin-top:20px;">
+
+        </ul>
+        <nav aria-label="subjectListpagination">
+          <ul id="subjectListPaginationControls" class="pagination">
+
+          </ul>
+        </nav>
+      </div>
+      <div class="allLoader" style=" height:100vh;">
+          <h1> Loading.. </h1>
+      </div>
+    </div>
+
+</body>
+
+</html>

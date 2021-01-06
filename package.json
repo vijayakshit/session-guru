@@ -1,0 +1,74 @@
+{
+  "name": "node-js-getting-started",
+  "version": "0.3.0",
+  "description": "A sample Node.js app using Express 4",
+  "engines": {
+    "node": "12.3.1"
+  },
+  "main": "index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "clean": "rimraf dist/*",
+    "copy-assets": "bash copyAssets.sh",
+    "local": "npm run clean && tsc && npm run copy-assets && node dist/index.js",
+    "postinstall": "tsc && mv -i -v public dist/ && npm run copy-assets && rm -v -rf src",
+    "watch-node": "nodemon dist/index.js",
+    "watch-ts": "tsc -w",
+    "deploy": "git add . && git commit -m Heroku && git push heroku main",
+    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write",
+    "lint": "eslint . --ext .ts",
+    "lint-and-fix": "eslint . --ext .ts --fix"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run prettier-format && npm run lint"
+    }
+  },
+  "dependencies": {
+    "connect-redis": "^5.0.0",
+    "cookie-parser": "^1.4.5",
+    "dotenv": "^8.2.0",
+    "ejs": "^2.5.6",
+    "express": "^4.15.2",
+    "express-session": "^1.17.1",
+    "pg": "^8.5.1",
+    "redis": "^3.0.2",
+    "typeorm": "^0.2.29"
+  },
+  "devDependencies": {
+    "@types/connect-redis": "0.0.16",
+    "@types/cookie-parser": "^1.4.2",
+    "@types/express": "^4.17.9",
+    "@types/express-session": "^1.17.3",
+    "@types/fs-extra": "^9.0.6",
+    "@types/node": "^14.14.16",
+    "@types/redis": "^2.8.28",
+    "@types/shelljs": "^0.8.8",
+    "@typescript-eslint/eslint-plugin": "^4.11.1",
+    "@typescript-eslint/parser": "^4.11.1",
+    "eslint": "^7.16.0",
+    "eslint-config-prettier": "^7.1.0",
+    "eslint-plugin-prettier": "^3.3.0",
+    "fs-extra": "^9.0.1",
+    "got": "^11.3.0",
+    "husky": "^4.3.6",
+    "nodemon": "^2.0.6",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.2.1",
+    "rimraf": "^3.0.2",
+    "shelljs": "^0.8.4",
+    "tape": "^4.7.0",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/heroku/node-js-getting-started"
+  },
+  "keywords": [
+    "node",
+    "heroku",
+    "express"
+  ],
+  "license": "MIT"
+}
