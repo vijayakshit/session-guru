@@ -8,7 +8,7 @@ metadata:
   annotations:
     example.com/service-discovery: esign-service
     circleci.com/project-slug: github.com/akshitvijay/session-guru
-    backstage.io/techdocs-ref: url:https://github.com/org/repo
+    backstage.io/techdocs-ref: url:https://github.com/akshitvijay/session-guru
   tags:
     - typescript
   links:
