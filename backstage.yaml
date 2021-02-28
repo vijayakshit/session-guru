@@ -4,10 +4,10 @@ metadata:
   name: esign-service
   description: The place to be, for great artists
   labels:
-    system: public-websites
+    system: internal-service
   annotations:
-    example.com/service-discovery: artistweb
-    circleci.com/project-slug: github/example-org/artist-website
+    example.com/service-discovery: esign-service
+    circleci.com/project-slug: github.com/akshitvijay/session-guru
   tags:
     - typescript
   links:
