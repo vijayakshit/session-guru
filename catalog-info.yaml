@@ -1,19 +1,19 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: esign-service
+  name: esign-serviceV2
   description: The place to be, for great artists
   labels:
-    system: internal-service
+    system: internal-serviceV2
   annotations:
-    example.com/service-discovery: esign-service
+    example.com/service-discovery: esign-serviceV2
     circleci.com/project-slug: github.com/akshitvijay/session-guru
     backstage.io/techdocs-ref: url:https://github.com/akshitvijay/session-guru
   tags:
     - typescript
   links:
     - url: https://admin.example-org.com
-      title: E Sign Service
+      title: E Sign serviceV2
       icon: dashboard
 spec:
   type: service
